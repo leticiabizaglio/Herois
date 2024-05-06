@@ -107,6 +107,45 @@ app.delete('/jogadores/:id', async (req, res) => {
 });
 
 
+// BATALHAS
+
+// Rota para realizar uma batalha entre dois jogadores
+app.post('/batalha', async (req, res) => {
+    try {
+        const result1 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
+        const result2 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
+        
+        const jogador1 = result1.rows[0];
+        const jogador2 = result2.rows[0];
+
+        
+        // Simula a batalha (aqui você pode definir a lógica de quem vence)
+    } catch (error) {}
+})
+
+// app.post('/batalha', async (req, res) => {
+//     try {
+//         // Seleciona aleatoriamente dois jogadores
+//         const result1 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
+//         const result2 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
+        
+//         const jogador1 = result1.rows[0];
+//         const jogador2 = result2.rows[0];
+
+//         // Simula a batalha (aqui você pode definir a lógica de quem vence)
+//         const vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
+
+//         // Insere os dados da batalha na tabela 'batalhas'
+//         await pool.query('INSERT INTO batalhas (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.id, vencedor.nome, vencedor.idade, vencedor.velocidade, vencedor.habilidade, vencedor.posicao, vencedor.time]);
+
+//         res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
+//     } catch (error) {
+//         console.log("Erro ao realizar a batalha: " + error);
+//         res.status(500).send("Erro ao realizar a batalha");
+//     }
+// });
+
+
 
 // Rota de teste
 app.get('/', (req, res) => {
