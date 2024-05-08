@@ -28,7 +28,7 @@ Jogadores
  - DELETE /jogadores/:id: Deleta um jogador pelo ID.
  
 Batalhas
- - POST /batalha: Realiza uma batalha entre dois jogadores.
+ - GET /batalha: Realiza uma batalha entre dois jogadores.
 
 
 ## Contribuição

@@ -128,13 +128,12 @@ app.delete('/jogadores/:id', async (req, res) => {
 // BATALHAS
 
 // Rota para realizar uma batalha entre dois jogadores
-app.post('/batalha', async (req, res) => {
+app.get('/batalha', async (req, res) => {
     try {
-        const result1 = await pool.query('SELECT * FROM jogadores ');
-        const result2 = await pool.query('');
+        const result = await pool.query('SELECT * FROM jogadores ORDER BY RANDOM() LIMIT 2');
         
-        const jogador1 = result1.rows[0];
-        const jogador2 = result2.rows[0];
+        const jogador1 = result.rows[0];
+        const jogador2 = result.rows[1];
 
         const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
         const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
@@ -148,12 +147,25 @@ app.post('/batalha', async (req, res) => {
             vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
         }
 
-        await pool.query('INSERT INTO BATALHAS (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.nome, vencedor.idade, vencedor.velocidade, vencedor.habilidade, vencedor.posicao, vencedor.time]);
+        await pool.query('INSERT INTO BATALHAS (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.id]);
+        
         res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
 
     } catch (error) {
         console.log("Erro ao realizar a batalha: " + error);
         res.status(500).send("Erro ao realizar a batalha");
+    }
+});
+
+
+// Rota para obter histórico de batalhas
+app.get('/batalhas', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM batalhas');
+        res.json(result.rows);
+    } catch (error) {
+        console.log("Erro ao obter batalhas: " + error);
+        res.status(500).send("Erro ao obter batalhas");
     }
 });
 
