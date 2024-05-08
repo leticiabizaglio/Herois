@@ -70,6 +70,17 @@ app.get('/jogadores', async (req, res) => {
         res.status(500).send("Erro ao buscar jogadores");
     }
 });
+// app.get('/jogadores/nome/:nome', async (req, res) => {
+//     const { nome } = req.params;
+//     try {
+//        const { rows } = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
+//        res.json(rows);
+//     } catch(error) {
+//        console.log("Erro ao obter jogador pelo nome: " + error);
+//        res.status(500).send("Erro ao obter o jogador pelo nome");
+//     } 
+//  });
+
 
 // Rota para adicionar um novo jogador
 app.post('/jogadores', async (req, res) => {
@@ -125,84 +136,26 @@ app.post('/batalha', async (req, res) => {
         const jogador1 = result1.rows[0];
         const jogador2 = result2.rows[0];
 
+        const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
+        const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
 
-        // Simula a batalha (aqui você pode definir a lógica de quem vence)
-    } catch (error) {}
-})
+        let vencedor;
+        if (velocidadeJogador1 > velocidadeJogador2) {
+            vencedor = jogador1;
+        } else if (velocidadeJogador2 > velocidadeJogador1) {
+            vencedor = jogador2;
+        } else {
+            vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
+        }
 
-// Rota para realizar uma batalha entre dois jogadores
-// app.post('/batalha', async (req, res) => {
-//     try {
-//         // Seleciona aleatoriamente dois jogadores
-//         const result1 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
-//         const result2 = await pool.query('SELECT * FROM jogadores OFFSET floor(random() * (SELECT COUNT(*) FROM jogadores)) LIMIT 1');
-        
-//         const jogador1 = result1.rows[0];
-//         const jogador2 = result2.rows[0];
+        await pool.query('INSERT INTO BATALHAS (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.nome, vencedor.idade, vencedor.velocidade, vencedor.habilidade, vencedor.posicao, vencedor.time]);
+        res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
 
-//         // Aplica o bônus de velocidade para jogadores do Corinthians
-//         const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
-//         const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
-
-//         // Determina o vencedor com base na velocidade
-//         let vencedor;
-//         if (velocidadeJogador1 > velocidadeJogador2) {
-//             vencedor = jogador1;
-//         } else if (velocidadeJogador2 > velocidadeJogador1) {
-//             vencedor = jogador2;
-//         } else {
-//             // Em caso de empate, o vencedor é escolhido aleatoriamente
-//             vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
-//         }
-
-//         // Insere os dados da batalha na tabela 'batalhas'
-//         await pool.query('INSERT INTO batalhas (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.id, vencedor.nome, vencedor.idade, vencedor.velocidade, vencedor.habilidade, vencedor.posicao, vencedor.time]);
-
-//         res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
-//     } catch (error) {
-//         console.log("Erro ao realizar a batalha: " + error);
-//         res.status(500).send("Erro ao realizar a batalha");
-//     }
-// });
-
-
-// // Rota para realizar uma batalha entre dois jogadores
-// app.post('/batalha', async (req, res) => {
-//     try {
-//         // Seleciona aleatoriamente dois jogadores
-//         const jogador1Query = 'SELECT * FROM jogadores ORDER BY RANDOM() LIMIT 1';
-//         const jogador2Query = 'SELECT * FROM jogadores ORDER BY RANDOM() LIMIT 1';
-
-//         const result1 = await pool.query(jogador1Query);
-//         const result2 = await pool.query(jogador2Query);
-        
-//         const jogador1 = result1.rows[0];
-//         const jogador2 = result2.rows[0];
-
-//         // Aplica o bônus de velocidade para jogadores do Corinthians
-//         const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
-//         const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
-
-//         // Determina o vencedor com base na velocidade
-//         let vencedor;
-//         if (velocidadeJogador1 > velocidadeJogador2) {
-//             vencedor = jogador1;
-//         } else if (velocidadeJogador2 > velocidadeJogador1) {
-//             vencedor = jogador2;
-//         } else {
-//             // Em caso de empate, o vencedor é escolhido aleatoriamente
-//             vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
-//         }
-
-//         // Insere os dados da batalha na tabela 'batalhas'
-//         await pool.query('INSERT INTO batalhas (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.id, vencedor.nome, vencedor.idade, vencedor.velocidade, vencedor.habilidade, vencedor.posicao, vencedor.time]);
-
-//         res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
-//     } catch (error) {
-//         console.log("Erro ao realizar a batalha: " + error);
-//         res.status(500).send("Erro ao realizar a batalha");
-//     }
-// });
+    } catch (error) {
+        console.log("Erro ao realizar a batalha: " + error);
+        res.status(500).send("Erro ao realizar a batalha");
+    }
+});
 
 
 
@@ -216,4 +169,4 @@ app.get('/', (req, res) => {
 // Inicia o servidor
 app.listen(port, () => {
     console.log(`Servidor iniciado na porta ${port}`);
-})
+});
