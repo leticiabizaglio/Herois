@@ -88,24 +88,24 @@ app.get('/jogadores', async (req, res) => {
 //  });
 
 
-app.get('/jogadores/nome/:nome', async (req, res) => {
-    try {
-        const { nome } = req.params;
-        const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
+// app.get('/jogadores/nome/:nome', async (req, res) => {
+//     try {
+//         const { nome } = req.params;
+//         const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
 
-        if (!result.rowCount === 0) {
-            res.status(404).send({ message: "Jogador não encontrado" });
-        } else {
-            res.status(200).send({
-                message: "Jogador encontrado", jogadores: result.rows[0]
-            });
-        }
+//         if (!result.rowCount === 0) {
+//             res.status(404).send({ message: "Jogador não encontrado" });
+//         } else {
+//             res.status(200).send({
+//                 message: "Jogador encontrado", jogadores: result.rows[0]
+//             });
+//         }
 
-    } catch (error) {
-        console.log("Erro ao obter jogador pelo nome: " + error);
-        res.status(500).send("Erro ao obter o jogador pelo nome");
-    }
-});
+//     } catch (error) {
+//         console.log("Erro ao obter jogador pelo nome: " + error);
+//         res.status(500).send("Erro ao obter o jogador pelo nome");
+//     }
+// });
 
 // Rota para adicionar um novo jogador
 app.post('/jogadores', async (req, res) => {
@@ -228,8 +228,6 @@ app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
 //     });
 
 
-
-
 // Rota para obter histórico de batalhas
 app.get('/batalhas', async (req, res) => {
     try {
@@ -241,12 +239,10 @@ app.get('/batalhas', async (req, res) => {
     }
 });
 
-
 // Rota de teste
 app.get('/', (req, res) => {
     res.send({ message: 'Servidor funcionando!' });
 });
-
 
 // Inicia o servidor
 app.listen(port, () => {
