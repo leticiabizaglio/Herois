@@ -48,13 +48,13 @@ app.get('/jogadores/:id', async (req, res) => {
 
 // Rota para buscar um jogador pelo nome 
 app.get('/jogadores/nome/:nome', async (req, res) => {
+    const { nome } = req.params;
     try {
-        const { nome } = req.params;
-        const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
-        if (result.rows.length === 0) {
-            res.status(404).send({ message: "Jogador não encontrado" });
+        const { rows } = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
+        if (rows.length === 0) {
+            res.status(404).json({ message: "Jogador não encontrado" });
         } else {
-            res.status(200).send({ message: "Jogador encontrado", jogador: result.rows[0] });
+            res.status(200).json(rows[0]);
         }
     } catch (error) {
         console.error("Erro ao obter jogador: ", error);
@@ -62,6 +62,21 @@ app.get('/jogadores/nome/:nome', async (req, res) => {
     }
 });
 
+// Rota para buscar jogador pelo time
+app.get('/jogadores/time/:time', async (req, res) => {
+    const { time } = req.params;
+    try {
+        const { rows } = await pool.query('SELECT * FROM jogadores WHERE time = $1', [time]);
+        if (rows.length === 0) {
+            res.status(404).json({ message: "Jogador não encontrado" });
+        } else {
+            res.status(200).json(rows);
+        }
+    } catch (error) {
+        console.error("Erro ao obter jogador: ", error);
+        res.status(500).send("Erro ao obter o jogador");
+    }
+});
 
 // Rota para adicionar um novo jogador
 app.post('/jogadores', async (req, res) => {
