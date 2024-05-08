@@ -46,66 +46,22 @@ app.get('/jogadores/:id', async (req, res) => {
     }
 });
 
-// Rota para buscar um jogador pelo nome
-app.get('/jogadores', async (req, res) => {
+// Rota para buscar um jogador pelo nome 
+app.get('/jogadores/nome/:nome', async (req, res) => {
     try {
-        const { nome } = req.query;
-        console.log("Nome do jogador:", nome);
-
-        let query;
-        let params;
-
-        if (nome) {
-            query = 'SELECT * FROM jogadores WHERE nome LIKE $1';
-            params = [`%${nome}%`];
+        const { nome } = req.params;
+        const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
+        if (result.rows.length === 0) {
+            res.status(404).send({ message: "Jogador não encontrado" });
         } else {
-            query = 'SELECT * FROM jogadores';
-            params = [];
+            res.status(200).send({ message: "Jogador encontrado", jogador: result.rows[0] });
         }
-
-        console.log("Query:", query);
-
-        const result = await pool.query(query, params);
-        res.json({
-            total: result.rowCount,
-            jogadores: result.rows
-        });
     } catch (error) {
-        console.error("Erro ao buscar jogadores: " + error);
-        res.status(500).send("Erro ao buscar jogadores");
+        console.error("Erro ao obter jogador: ", error);
+        res.status(500).send("Erro ao obter o jogador");
     }
 });
 
-// app.get('/jogadores/nome/:nome', async (req, res) => {
-//     const { nome } = req.params;
-//     try {
-//        const { rows } = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
-//        res.json(rows);
-//     } catch(error) {
-//        console.log("Erro ao obter jogador pelo nome: " + error);
-//        res.status(500).send("Erro ao obter o jogador pelo nome");
-//     } 
-//  });
-
-
-// app.get('/jogadores/nome/:nome', async (req, res) => {
-//     try {
-//         const { nome } = req.params;
-//         const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
-
-//         if (!result.rowCount === 0) {
-//             res.status(404).send({ message: "Jogador não encontrado" });
-//         } else {
-//             res.status(200).send({
-//                 message: "Jogador encontrado", jogadores: result.rows[0]
-//             });
-//         }
-
-//     } catch (error) {
-//         console.log("Erro ao obter jogador pelo nome: " + error);
-//         res.status(500).send("Erro ao obter o jogador pelo nome");
-//     }
-// });
 
 // Rota para adicionar um novo jogador
 app.post('/jogadores', async (req, res) => {
@@ -153,7 +109,7 @@ app.delete('/jogadores/:id', async (req, res) => {
 // BATALHAS
 
 // Rota para realizar uma batalha entre dois jogadores
-app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
+app.get('/batalhas/:jogador1_id/:jogador2_id', async (req, res) => {
     try {
         const { jogador1_id, jogador2_id } = req.params;
 
