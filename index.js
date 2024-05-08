@@ -193,6 +193,42 @@ app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
     }
 });
 
+// async function batalha(jogador1, jogador2) {
+
+//     const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
+//     const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
+
+
+//     let vencedor;
+//     if (velocidadeJogador1 > velocidadeJogador2) {
+//         return 'Jogador 1 ganhou';
+//     } else if (velocidadeJogador1 < velocidadeJogador2) {
+//         return 'Jogador 2 ganhou';
+//     } else {
+//         vencedor = Math.random() < 0.5 ? jogador1_id : jogador2_id;
+//     }
+
+// }
+
+
+// app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
+
+//     const { jogador1_id, jogador2_id } = req.params;
+//     try {
+
+//         const vencedorID = await batalha(jogador1_id, jogador2_id);
+
+//         await pool.query('INSERT INTO batalhas (jogador1_id, jogador2_id, vencedor_id) VALUES ($1, $2, $3)', [jogador1_id, jogador2_id, vencedorID]);
+//         res.status(201).send({ message: "Batalha realizada com sucesso" });
+//     } catch (error) {
+//         console.log("Erro ao realizar batalha: " + error);
+//         res.status(500).send("Erro ao realizar batalha");
+//     }
+        
+//     });
+
+
+
 
 // Rota para obter histórico de batalhas
 app.get('/batalhas', async (req, res) => {
