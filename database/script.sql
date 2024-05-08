@@ -83,12 +83,6 @@ CREATE TABLE batalhas (
     jogador1_id INT REFERENCES jogadores(id),
     jogador2_id INT REFERENCES jogadores(id),
     vencedor_id INT REFERENCES jogadores(id),
-    nome VARCHAR(50) NOT NULL,
-    idade INT NOT NULL,
-    velocidade INT NOT NULL,
-    habilidade VARCHAR(50) NOT NULL,
-    posicao VARCHAR(50) NOT NULL,
-    time VARCHAR(50) NOT NULL,
     FOREIGN KEY (jogador1_id) REFERENCES jogadores(id),
     FOREIGN KEY (jogador2_id) REFERENCES jogadores(id),
     FOREIGN KEY (vencedor_id) REFERENCES jogadores(id)

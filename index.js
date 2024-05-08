@@ -46,7 +46,6 @@ app.get('/jogadores/:id', async (req, res) => {
     }
 });
 
-
 // Rota para buscar um jogador pelo nome
 app.get('/jogadores', async (req, res) => {
     try {
@@ -67,21 +66,15 @@ app.get('/jogadores', async (req, res) => {
         console.log("Query:", query);
 
         const result = await pool.query(query, params);
-
-        console.log("Resultados:", result.rows);
-
-        if (result.rows.length === 0) {
-            res.status(404).send("Nenhum jogador encontrado");
-        } else {
-            res.json(result.rows);
-        }
+        res.json({
+            total: result.rowCount,
+            jogadores: result.rows
+        });
     } catch (error) {
         console.error("Erro ao buscar jogadores: " + error);
         res.status(500).send("Erro ao buscar jogadores");
     }
 });
-
-
 
 // app.get('/jogadores/nome/:nome', async (req, res) => {
 //     const { nome } = req.params;
@@ -199,9 +192,6 @@ app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
         res.status(500).send("Erro ao realizar a batalha");
     }
 });
-
-
-
 
 
 // Rota para obter histórico de batalhas
