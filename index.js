@@ -51,25 +51,38 @@ app.get('/jogadores/:id', async (req, res) => {
 app.get('/jogadores', async (req, res) => {
     try {
         const { nome } = req.query;
+        console.log("Nome do jogador:", nome);
+
         let query;
         let params;
 
         if (nome) {
-            query = 'SELECT * FROM jogadores WHERE nome = $1';
-            params = [nome];
+            query = 'SELECT * FROM jogadores WHERE nome LIKE $1';
+            params = [`%${nome}%`];
         } else {
             query = 'SELECT * FROM jogadores';
             params = [];
         }
 
-        const { rows } = await pool.query(query, params); 
+        console.log("Query:", query);
 
-        res.json(rows); // Retorna os resultados como JSON
+        const result = await pool.query(query, params);
+
+        console.log("Resultados:", result.rows);
+
+        if (result.rows.length === 0) {
+            res.status(404).send("Nenhum jogador encontrado");
+        } else {
+            res.json(result.rows);
+        }
     } catch (error) {
         console.error("Erro ao buscar jogadores: " + error);
         res.status(500).send("Erro ao buscar jogadores");
     }
 });
+
+
+
 // app.get('/jogadores/nome/:nome', async (req, res) => {
 //     const { nome } = req.params;
 //     try {
@@ -81,6 +94,25 @@ app.get('/jogadores', async (req, res) => {
 //     } 
 //  });
 
+
+app.get('/jogadores/nome/:nome', async (req, res) => {
+    try {
+        const { nome } = req.params;
+        const result = await pool.query('SELECT * FROM jogadores WHERE nome = $1', [nome]);
+
+        if (!result.rowCount === 0) {
+            res.status(404).send({ message: "Jogador não encontrado" });
+        } else {
+            res.status(200).send({
+                message: "Jogador encontrado", jogadores: result.rows[0]
+            });
+        }
+
+    } catch (error) {
+        console.log("Erro ao obter jogador pelo nome: " + error);
+        res.status(500).send("Erro ao obter o jogador pelo nome");
+    }
+});
 
 // Rota para adicionar um novo jogador
 app.post('/jogadores', async (req, res) => {
@@ -128,27 +160,38 @@ app.delete('/jogadores/:id', async (req, res) => {
 // BATALHAS
 
 // Rota para realizar uma batalha entre dois jogadores
-app.get('/batalha', async (req, res) => {
+app.get('/batalha/:jogador1_id/:jogador2_id', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM jogadores ORDER BY RANDOM() LIMIT 2');
-        
-        const jogador1 = result.rows[0];
-        const jogador2 = result.rows[1];
+        const { jogador1_id, jogador2_id } = req.params;
+
+        const resultJogador1 = await pool.query('SELECT * FROM jogadores WHERE id = $1', [jogador1_id]);
+        if (resultJogador1.rows.length === 0) {
+            res.status(404).send("Jogador 1 não encontrado");
+            return;
+        }
+        const jogador1 = resultJogador1.rows[0];
+
+        const resultJogador2 = await pool.query('SELECT * FROM jogadores WHERE id = $1', [jogador2_id]);
+        if (resultJogador2.rows.length === 0) {
+            res.status(404).send("Jogador 2 não encontrado");
+            return;
+        }
+        const jogador2 = resultJogador2.rows[0];
 
         const velocidadeJogador1 = jogador1.time === 'Corinthians' ? jogador1.velocidade + 22 : jogador1.velocidade;
         const velocidadeJogador2 = jogador2.time === 'Corinthians' ? jogador2.velocidade + 22 : jogador2.velocidade;
 
         let vencedor;
         if (velocidadeJogador1 > velocidadeJogador2) {
-            vencedor = jogador1;
+            vencedor = jogador1_id;
         } else if (velocidadeJogador2 > velocidadeJogador1) {
-            vencedor = jogador2;
+            vencedor = jogador2_id;
         } else {
-            vencedor = Math.random() < 0.5 ? jogador1 : jogador2;
+            vencedor = Math.random() < 0.5 ? jogador1_id : jogador2_id;
         }
 
-        await pool.query('INSERT INTO BATALHAS (jogador1_id, jogador2_id, vencedor_id, nome, idade, velocidade, habilidade, posicao, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [jogador1.id, jogador2.id, vencedor.id]);
-        
+        await pool.query('INSERT INTO BATALHAS (jogador1_id, jogador2_id, vencedor_id) VALUES ($1, $2, $3)', [jogador1_id, jogador2_id, vencedor]);
+
         res.status(200).send({ message: "Batalha realizada com sucesso", vencedor });
 
     } catch (error) {
@@ -156,6 +199,9 @@ app.get('/batalha', async (req, res) => {
         res.status(500).send("Erro ao realizar a batalha");
     }
 });
+
+
+
 
 
 // Rota para obter histórico de batalhas
@@ -168,8 +214,6 @@ app.get('/batalhas', async (req, res) => {
         res.status(500).send("Erro ao obter batalhas");
     }
 });
-
-
 
 
 // Rota de teste
